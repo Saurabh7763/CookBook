@@ -39,3 +39,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
