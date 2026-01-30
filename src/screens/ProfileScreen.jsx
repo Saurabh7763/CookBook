@@ -4,9 +4,20 @@ import tailwind from 'twrnc'
 import { ArrowLeftIcon, ArrowRightStartOnRectangleIcon, BellIcon, ChatBubbleLeftIcon, ChevronRightIcon, Cog6ToothIcon, UserIcon } from 'react-native-heroicons/outline'
 import {  HeartIcon } from 'react-native-heroicons/solid'
 import { useNavigation } from '@react-navigation/native'
+import { useAuth } from '../context/AuthContext'
 
 const ProfileScreen = () => {
     const navigation = useNavigation()
+    const {logout} = useAuth()
+
+  const handleLogout=async()=>{
+    try {
+        await logout()
+    } catch (error) {
+        console.log("Logout Error:", error)
+    }
+  }
+
   return (
     <View style={tailwind`bg-white flex-1 pt-10 px-5`}>
       <View style={tailwind`flex-row items-center`}>
@@ -83,7 +94,7 @@ const ProfileScreen = () => {
             
                 <TouchableOpacity
                   style={tailwind`flex-row items-center`}
-                  onPress={()=>navigation.navigate('Login')}
+                  onPress={handleLogout}
                 >
                     <ArrowRightStartOnRectangleIcon
                        strokeWidth={2}

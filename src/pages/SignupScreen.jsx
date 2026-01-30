@@ -15,9 +15,10 @@ import {useAuth} from '../context/AuthContext'
 
 const Login = () => {
   const navigation = useNavigation();
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const {login} = useAuth()
+  const {signup} = useAuth()
 
 
   const textTranslateY = useSharedValue(50);
@@ -52,12 +53,12 @@ const Login = () => {
     opacity: cardOpacity.value,
   }));
 
-  const handleSubmit =async () => {
-    if ( password === '' || email === '') {
+  const handleSubmit = async() => {
+    if (name === '' || password === '' || email === '') {
       Alert.alert('Please enter all required credentials.');
     } else {
       try {
-        await login(email,password)
+        await signup(email,password)
       } catch (error) {
         console.log("login error:",error)
       }
@@ -84,8 +85,8 @@ const Login = () => {
       </View>
 
       
-      <Text style={tailwind`absolute left-[43%] top-[29%] text-white text-2xl font-bold`}>
-        Login
+      <Text style={tailwind`absolute left-[40%] top-[29%] text-white text-2xl font-bold`}>
+        Register
       </Text>
 
       
@@ -95,6 +96,15 @@ const Login = () => {
           cardStyle,
         ]}
       >
+        <TextInput
+          style={tailwind`bg-white rounded-2xl mb-3 px-3 py-2`}
+          placeholder="Enter your name"
+          placeholderTextColor={'gray'}
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={name}
+          onChangeText={setName}
+        />
         <TextInput
           style={tailwind`bg-white rounded-2xl mb-3 px-3 py-2`}
           placeholder="Enter your email"
@@ -117,10 +127,19 @@ const Login = () => {
           style={tailwind`bg-amber-500 justify-center items-center w-28 py-2 rounded-2xl self-center mt-2`}
           onPress={handleSubmit}
         >
-          <Text style={tailwind`text-white text-xl font-bold`}>Login</Text>
+          <Text style={tailwind`text-white text-xl font-bold`}>Register</Text>
         </TouchableOpacity>
 
-        
+        <View style={tailwind` items-center`}>
+          <Text style={tailwind`self-center text-neutral-600 mt-3`}>
+          Already have an account?
+        </Text>
+        <TouchableOpacity
+          onPress={()=>navigation.navigate('Login')}
+        >
+          <Text style={tailwind`text-amber-500 text-xl underline font-bold`}>Login</Text>
+        </TouchableOpacity>
+        </View>
       </Animated.View>
 
      
