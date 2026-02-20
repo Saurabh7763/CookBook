@@ -24,7 +24,7 @@ import Animated, {
 const HomeScreen = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("Beef");
+  const [activeCategory, setActiveCategory] = useState("pasta");
   const [searchQuery, setSearchQuery] = useState("");
   const { fetchRecipe } = useContext(RecipeContext);
   const categoryTranslateY = useSharedValue(50);

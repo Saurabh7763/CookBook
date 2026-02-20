@@ -33,13 +33,13 @@ const ProfileScreen = () => {
         <Text style={tailwind`text-2xl text-neutral-600 ml-22 font-bold`}>Profile</Text>
       </View>
 
-      <View style={tailwind`flex mx-4 mt-5 justify-center items-center`}>
+      <View style={tailwind`flex mx-4 mt-5 justify-center bg-amber-500 p-3 rounded-10 items-center`}>
          <Image
             source={require('../../assets/avtar.png')}
             style={{width:110,height:110,borderRadius:55}}
          />
-         <Text style={tailwind`text-lg text-neutral-600`}>admin</Text>
-         <Text style={tailwind`text-lg text-neutral-600`}>admin123@gmail.com</Text>
+         <Text style={tailwind`text-lg font-bold text-neutral-600`}>admin</Text>
+         <Text style={tailwind`text-sm text-neutral-600`}>admin123@gmail.com</Text>
       </View>
 
       <View style={tailwind`flex-row justify-around items-center mx-2 mt-10`}>
@@ -81,7 +81,7 @@ const ProfileScreen = () => {
             </View>
             <ChevronRightIcon/>
         </View>
-        <View style={tailwind`w-full flex-row items-center justify-between bg-gray-200 px-1 py-2 mb-4 rounded-lg`}>
+        <View style={tailwind`w-full flex-row items-center justify-between bg-gray-200 px-1 py-2 mb-10 rounded-lg`}>
             <View style={tailwind`flex-row items-center`}>
                 <Cog6ToothIcon
                 strokeWidth={2}
@@ -90,20 +90,17 @@ const ProfileScreen = () => {
             </View>
             <ChevronRightIcon/>
         </View>
-        <View style={tailwind`w-full flex-row items-center justify-between bg-gray-200 px-1 py-2 mb-3 rounded-lg`}>
-            
-                <TouchableOpacity
-                  style={tailwind`flex-row items-center`}
-                  onPress={handleLogout}
-                >
-                    <ArrowRightStartOnRectangleIcon
-                       strokeWidth={2}
-                        color={'#fb1c1cff'}
-                    />
-                <Text style={tailwind`text-neutral-600 ml-2`}>Logout</Text>
-                </TouchableOpacity>
            
-        </View>
+           <TouchableOpacity 
+             style={tailwind`flex-row mx-auto items-center justify-center px-5 py-3 bg-red-500 rounded-full mt-5`}
+             onPress={handleLogout}
+           >
+            <ArrowRightStartOnRectangleIcon
+                       strokeWidth={2}
+                        color={'#ffffff'}
+                    />
+                    <Text style={tailwind`text-xl ml-3 text-white font-bold`}>Logout</Text>
+           </TouchableOpacity>
       </View>
 
 

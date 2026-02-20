@@ -37,7 +37,7 @@ const Header = () => {
           text="The art of fine cooking, perfected."
           highlightWord="Perfected"
           highlightStyle={{ color: 'red', fontWeight: 'bold' }}
-          speed={100}
+          speed={80}
           delay={500}
           style={tailwind`text-xl text-white font-bold`}
         />

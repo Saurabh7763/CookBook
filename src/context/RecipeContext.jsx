@@ -9,7 +9,7 @@ export const RecipeProvider = ({ children }) => {
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [favourites, setFavourites] = useState([]);
 
-  const fetchRecipe = async (category = "Beef") => {
+  const fetchRecipe = async (category = "pasta") => {
     try {
       setRecipeLoading(true);
       const response = await axios.get(

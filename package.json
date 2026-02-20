@@ -14,7 +14,7 @@
     "@react-navigation/native-stack": "^7.3.28",
     "axios": "^1.12.2",
     "babel-preset-expo": "~54.0.10",
-    "expo": "~54.0.32",
+    "expo": "~54.0.33",
     "expo-status-bar": "~3.0.9",
     "firebase": "^12.8.0",
     "react": "19.1.0",
@@ -31,5 +31,8 @@
     "react-native-youtube-iframe": "^2.4.1",
     "twrnc": "^4.10.1"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "baseline-browser-mapping": "^2.10.0"
+  }
 }
