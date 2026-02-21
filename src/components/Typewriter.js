@@ -1,48 +1,68 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Text } from "react-native";
 
 const Typewriter = ({
-  text,
-  highlightWord,
-  highlightStyle,
-  speed = 100,
-  delay = 0,
+  text = "",
+  highlightWord = "",
+  highlightStyle = {},
+  speed = 80,
+  delay = 300,
   style,
 }) => {
   const [displayedText, setDisplayedText] = useState("");
+  const intervalRef = useRef(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i < text.length) {
-          setDisplayedText((prev) => prev + text.charAt(i));
-          i++;
-        } else {
-          clearInterval(interval);
-        }
+    // prevent multiple runs
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    setDisplayedText("");
+
+    const startTimeout = setTimeout(() => {
+      let index = 0;
+
+      intervalRef.current = setInterval(() => {
+        setDisplayedText((prev) => {
+          if (index >= text.length) {
+            clearInterval(intervalRef.current);
+            return prev;
+          }
+          const next = prev + text[index];
+          index++;
+          return next;
+        });
       }, speed);
     }, delay);
 
-    return () => clearTimeout(timeout);
-  }, [text, speed, delay]);
+    return () => {
+      clearTimeout(startTimeout);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [text]);
 
-  
-  const parts = displayedText.split(new RegExp(`(${highlightWord})`, "gi"));
+  // highlight word safely
+  const parts = highlightWord
+    ? displayedText.split(new RegExp(`(${highlightWord})`, "gi"))
+    : [displayedText];
 
   return (
     <Text style={style}>
       {parts.map((part, index) =>
-        part.toLowerCase() === highlightWord?.toLowerCase() ? (
+        highlightWord &&
+        part.toLowerCase() === highlightWord.toLowerCase() ? (
           <Text key={index} style={highlightStyle}>
             {part}
           </Text>
         ) : (
-          part
+          <Text key={index}>{part}</Text>
         )
       )}
     </Text>
   );
 };
 
-export default Typewriter;
+export default React.memo(Typewriter);

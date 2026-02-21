@@ -8,6 +8,9 @@ import FavouriteScreen from '../screens/FavouriteScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import Login from '../pages/Login';
 import SignupScreen from '../pages/SignupScreen';
+import NotificationScreen from '../screens/NotificationScreen';
+import SupportScreen from '../screens/SupportScreen';
+import NotificationSettingScreen from '../screens/NotificationSettingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +28,9 @@ export default function Navigation() {
           <Stack.Screen name="RecipeDetails" component={RecipeDetails} />
           <Stack.Screen name="Favourite" component={FavouriteScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name='Notification' component={NotificationScreen}/>
+          <Stack.Screen name='Support' component={SupportScreen}/>
+          <Stack.Screen name='NotiSetting' component={NotificationSettingScreen}/>
         </>
       ) : (
         <>

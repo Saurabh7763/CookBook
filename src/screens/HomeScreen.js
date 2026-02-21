@@ -24,7 +24,7 @@ import Animated, {
 const HomeScreen = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("pasta");
+  const [activeCategory, setActiveCategory] = useState("Dessert");
   const [searchQuery, setSearchQuery] = useState("");
   const { fetchRecipe } = useContext(RecipeContext);
   const categoryTranslateY = useSharedValue(50);
@@ -79,24 +79,24 @@ const HomeScreen = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchQuery}`
-      );
-      if (response.data.meals) {
-        fetchRecipe(null, response.data.meals);
-      } else {
-        fetchRecipe(null, []);
-      }
-      animateRecipes(); 
-    } catch (error) {
-      console.log("Search error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!searchQuery.trim()) return;
+
+  setActiveCategory(null); 
+  setLoading(true);
+
+  try {
+    const response = await axios.get(
+      `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(searchQuery)}`
+    );
+
+    fetchRecipe(null, response.data.meals || []);
+    animateRecipes();
+  } catch (error) {
+    console.log("Search error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   
   useEffect(() => {
@@ -107,11 +107,12 @@ const HomeScreen = () => {
 
   
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      fetchRecipe(activeCategory);
-      animateRecipes(); 
-    }
-  }, [activeCategory]);
+  if (searchQuery.trim() === "") {
+    fetchRecipe(activeCategory);
+    animateRecipes();
+    
+  }
+}, [activeCategory, searchQuery]);
 
   return (
     <View style={tailwind`flex-1 bg-white`}>
@@ -123,7 +124,7 @@ const HomeScreen = () => {
      
       <View style={tailwind`mx-3 my-2`}>
         <View
-          style={tailwind`relative flex-row items-center bg-black/5 rounded-full`}
+          style={tailwind`relative flex-row items-center border border-amber-500 bg-black/5 rounded-full`}
         >
           <TextInput
             style={tailwind`px-4 flex-1`}
@@ -135,10 +136,10 @@ const HomeScreen = () => {
             returnKeyType="search"
           />
           <TouchableOpacity
-            style={tailwind`absolute right-1 bg-white p-2 mr-2 rounded-full`}
+            style={tailwind`absolute right-0 bg-white p-2  rounded-full`}
             onPress={handleSearch}
           >
-            <MagnifyingGlassIcon size={20} color="gray" />
+            <MagnifyingGlassIcon size={24} color="gray" />
           </TouchableOpacity>
         </View>
       </View>
@@ -155,10 +156,13 @@ const HomeScreen = () => {
           
           <Animated.View style={[categoriesAnimatedStyle]}>
             <Categories
-              itemData={categories}
-              isActive={activeCategory}
-              setIsActive={setActiveCategory}
-            />
+            itemData={categories}
+            isActive={activeCategory}
+            setIsActive={(category) => {
+            setActiveCategory(category);
+            setSearchQuery("");   
+            }}
+          />
           </Animated.View>
 
           <Animated.View style={[tailwind`flex-1 pb-16`, recipeAnimatedStyle]}>

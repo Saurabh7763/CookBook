@@ -9,24 +9,34 @@ export const RecipeProvider = ({ children }) => {
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [favourites, setFavourites] = useState([]);
 
-  const fetchRecipe = async (category = "pasta") => {
-    try {
-      setRecipeLoading(true);
+  const fetchRecipe = async (category = null, meals = null) => {
+  try {
+    setRecipeLoading(true);
+
+   
+    if (meals !== null) {
+      setRecipe(meals);
+      setRecipeLoading(false);
+      return;
+    }
+
+    
+    if (category) {
       const response = await axios.get(
         `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
       );
-      setRecipe(response.data.meals || []);
-    } catch (error) {
-      console.log("Error fetching recipe:", error);
-      setRecipe([]);
-    } finally {
-      setRecipeLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchRecipe();
-  }, []);
+      setRecipe(response.data.meals || []);
+    } else {
+      setRecipe([]);
+    }
+  } catch (error) {
+    console.log("Error fetching recipe:", error);
+    setRecipe([]);
+  } finally {
+    setRecipeLoading(false);
+  }
+};
 
   
   const addToFavourites = async (meal) => {

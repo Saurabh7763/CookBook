@@ -4,12 +4,13 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage'
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDcV02HGGeob5b1clEoip4k_h9Fy9C6vtI",
-  authDomain: "cookbook-d6955.firebaseapp.com",
-  projectId: "cookbook-d6955",
-  storageBucket: "cookbook-d6955.firebasestorage.app",
-  messagingSenderId: "84524833029",
-  appId: "1:84524833029:web:d60412a514db0b6637bf6c"
+   apiKey: "AIzaSyBGEz1CbeNjxbhqUoYWGmxcFRQvivHpqDs",
+  authDomain: "cookbook-6e559.firebaseapp.com",
+  projectId: "cookbook-6e559",
+  storageBucket: "cookbook-6e559.firebasestorage.app",
+  messagingSenderId: "399630571246",
+  appId: "1:399630571246:web:b617fdb0dd68262fc285ff"
+
 };
 
 

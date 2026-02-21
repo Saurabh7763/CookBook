@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import tailwind from 'twrnc';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import Animated, {
   Easing
 } from 'react-native-reanimated';
 import {useAuth} from '../context/AuthContext'
+import { updateProfile } from 'firebase/auth';
 
 
 const Login = () => {
@@ -59,6 +60,9 @@ const Login = () => {
     } else {
       try {
         await signup(email,password)
+        await updateProfile(userCredential.user, {
+      displayName: name,
+    });
       } catch (error) {
         console.log("login error:",error)
       }
