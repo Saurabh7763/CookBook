@@ -20,24 +20,26 @@ export default function Navigation() {
   if (loading) return null; 
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <>
       {user ? (
-        <>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="RecipeDetails" component={RecipeDetails} />
           <Stack.Screen name="Favourite" component={FavouriteScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name='Notification' component={NotificationScreen}/>
           <Stack.Screen name='Support' component={SupportScreen}/>
           <Stack.Screen name='NotiSetting' component={NotificationSettingScreen}/>
-        </>
+        </Stack.Navigator>
       ) : (
-        <>
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName='Welcome'>
           <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="Login" component={Login} />
-        </>
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        </Stack.Navigator>
       )}
-    </Stack.Navigator>
+    </>
+    
   );
+  
 }

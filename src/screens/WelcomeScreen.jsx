@@ -61,7 +61,7 @@ const WelcomeScreen = () => {
       ring2padding.value = withSpring(40);
     }, 300);
 
-    const timer = setTimeout(() => navigation.navigate("Login"), 2500);
+    const timer = setTimeout(() => navigation.navigate("Signup"), 2500);
     return () => clearTimeout(timer);
   }, []);
 
