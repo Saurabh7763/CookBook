@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react";
-import { View, Text, FlatList } from "react-native";
+import { View, Text } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import tailwind from "twrnc";
 import { RecipeContext } from "../context/RecipeContext";
 import Card from "../components/Card";
@@ -11,21 +12,21 @@ const FavouriteScreen = ({ navigation }) => {
   const translateY = useSharedValue(50)
   const opacity = useSharedValue(0)
 
-  useEffect(()=>{
-    translateY.value = withSpring(0,{
-      damping : 12,
-      stiffness:100
+  useEffect(() => {
+    translateY.value = withSpring(0, {
+      damping: 12,
+      stiffness: 100
     })
     opacity.value = withTiming(1, {
-      duration : 800,
-      easing : Easing.out(Easing.exp)
+      duration: 800,
+      easing: Easing.out(Easing.exp)
     })
-  },[])
+  }, [])
 
-  const favouriteAnimatedScreen =  useAnimatedStyle(()=>({
-          transform: [{translateY: translateY.value}],
-          opacity: opacity.value
-      }))
+  const favouriteAnimatedScreen = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value
+  }))
 
   return (
     <View style={tailwind`flex-1 bg-white pt-10 px-4`}>
@@ -48,27 +49,29 @@ const FavouriteScreen = ({ navigation }) => {
           No favourites yet ❤️
         </Text>
       ) : (
-        <Animated.View style={[tailwind`mt-3`, favouriteAnimatedScreen]}>
-        <FlatList
-          data={favourites}
-          keyExtractor={(item) => item.idMeal}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <Card
-              meal={item}
-              index={index}
-              onPress={() =>
-                navigation.navigate("RecipeDetails", { meal: item })
-              }
-            />
-          )}
-          contentContainerStyle={tailwind`pb-20`}
-        />
+        <Animated.View style={[tailwind`mt-3 flex-1`, favouriteAnimatedScreen]}>
+          <FlashList
+            masonry
+            data={favourites}
+            keyExtractor={(item) => item.idMeal}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <Card
+                meal={item}
+                index={index}
+                onPress={() =>
+                  navigation.navigate("RecipeDetails", { meal: item })
+                }
+              />
+            )}
+            contentContainerStyle={tailwind`pb-20`}
+            estimatedItemSize={250}
+          />
         </Animated.View>
       )
       }
-      
+
     </View>
   );
 };

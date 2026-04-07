@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-seoul/masonry-list": "^1.4.2",
     "@react-navigation/native": "^7.1.18",
     "@react-navigation/native-stack": "^7.3.28",
+    "@shopify/flash-list": "2.0.2",
     "axios": "^1.12.2",
     "babel-preset-expo": "~54.0.10",
     "expo": "~54.0.33",
@@ -20,7 +22,6 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-heroicons": "^4.0.0",
-    "react-native-masonry-list": "^2.16.2",
     "react-native-reanimated": "^4.1.3",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",

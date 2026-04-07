@@ -165,7 +165,7 @@ const HomeScreen = () => {
           />
           </Animated.View>
 
-          <Animated.View style={[tailwind`flex-1 pb-16`, recipeAnimatedStyle]}>
+          <Animated.View style={[tailwind`flex-1 pb-5`, recipeAnimatedStyle]}>
             <Recipe />
           </Animated.View>
         </>

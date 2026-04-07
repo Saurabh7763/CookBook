@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import tailwind from "twrnc";
 import Card from "./Card";
 import { RecipeContext } from "../context/RecipeContext";
@@ -10,12 +11,12 @@ const Recipe = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={tailwind`mx-4 mt-1`}>
+    <View style={tailwind`mx-4 mt-1 flex-1`}>
       <Text style={tailwind`text-xl font-bold text-neutral-500 mt-1 mb-1`}>
         Recipes
       </Text>
 
-      <View style={tailwind`mb-2`}>
+      <View style={tailwind` flex-1 mt-2`}>
         {recipeLoading ? (
           <ActivityIndicator
             size="large"
@@ -29,7 +30,8 @@ const Recipe = () => {
             </Text>
           </View>
         ) : (
-          <FlatList
+          <FlashList
+            masonry
             data={recipe}
             keyExtractor={(item) => item.idMeal}
             numColumns={2}
@@ -43,6 +45,8 @@ const Recipe = () => {
                 }
               />
             )}
+            onEndReachedThreshold={0.1}
+            estimatedItemSize={250}
           />
         )}
       </View>
