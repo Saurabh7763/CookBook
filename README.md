@@ -9,8 +9,9 @@ It features category-based browsing, smooth animations, and a clean UI powered b
 
 ---
 
+# 🍳 Demo
 
-## 🎥 Demo
+https://github.com/user-attachments/assets/ac3a02de-b8b6-432b-930a-60a41b56bb8f
 
 
 
