@@ -1,7 +1,7 @@
-import { View, Text, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
-import  { useEffect, useState } from 'react';
+import { View, Text, TextInput, Image, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import tailwind from 'twrnc';
-import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { ChevronLeftIcon, EnvelopeIcon, LockClosedIcon, UserIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import Animated, {
   useSharedValue,
@@ -10,16 +10,18 @@ import Animated, {
   withSpring,
   Easing
 } from 'react-native-reanimated';
-import {useAuth} from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext';
 import { updateProfile } from 'firebase/auth';
+import Loader from '../components/Loader';
 
 
-const Login = () => {
+const Signup = () => {
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const {signup} = useAuth()
+  const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
 
 
   const textTranslateY = useSharedValue(50);
@@ -29,20 +31,20 @@ const Login = () => {
   const cardOpacity = useSharedValue(0);
 
   useEffect(() => {
-  textTranslateY.value = withSpring(0, { damping: 12, stiffness: 100 });
-  textOpacity.value = withTiming(1, {
-    duration: 800,
-    easing: Easing.out(Easing.exp), 
-  });
-
-  setTimeout(() => {
-    cardTranslateY.value = withTiming(0, {
-      duration: 900,
+    textTranslateY.value = withSpring(0, { damping: 12, stiffness: 100 });
+    textOpacity.value = withTiming(1, {
+      duration: 800,
       easing: Easing.out(Easing.exp),
     });
-    cardOpacity.value = withTiming(1, { duration: 900 });
-  }, 300);
-}, []);
+
+    setTimeout(() => {
+      cardTranslateY.value = withTiming(0, {
+        duration: 900,
+        easing: Easing.out(Easing.exp),
+      });
+      cardOpacity.value = withTiming(1, { duration: 900 });
+    }, 300);
+  }, []);
 
   const textStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: textTranslateY.value }],
@@ -54,108 +56,135 @@ const Login = () => {
     opacity: cardOpacity.value,
   }));
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     if (name === '' || password === '' || email === '') {
-      Alert.alert('Please enter all required credentials.');
-    } else {
-      try {
-        await signup(email,password)
+      Alert.alert('Error', 'Please enter all required credentials.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await signup(email, password);
+      // Ensure we have the user object to update profile
+      if (userCredential && userCredential.user) {
         await updateProfile(userCredential.user, {
-      displayName: name,
-    });
-      } catch (error) {
-        console.log("login error:",error)
+          displayName: name,
+        });
       }
+    } catch (error) {
+      console.log("signup error:", error);
+      Alert.alert('Signup Failed', error.message || 'An error occurred during signup.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={tailwind`w-full flex-1 relative bg-white`}>
-      
-      <ChevronLeftIcon
-        style={tailwind`absolute ml-2 z-10 mt-10`}
-        size={40}
-        color={'white'}
-        strokeWidth={2}
-        onPress={() => navigation.goBack()}
-      />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={tailwind`flex-1 bg-white`}
+    >
+      {loading && <Loader message="Creating your account..." />}
 
-      
-      <View style={tailwind`h-[40%] bg-amber-500 justify-center items-center rounded-b-full`}>
-        <Image
-          source={require('../../assets/avtar.png')}
-          style={tailwind`h-40 w-40 mb-2`}
-        />
-      </View>
+      <ScrollView contentContainerStyle={tailwind`flex-grow`} bounces={false}>
+        <View style={tailwind`w-full flex-1 relative bg-white`}>
 
-      
-      <Text style={tailwind`absolute left-[40%] top-[29%] text-white text-2xl font-bold`}>
-        Register
-      </Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={tailwind`absolute left-4 top-12 z-20 bg-black/20 p-2 rounded-full`}
+          >
+            <ChevronLeftIcon size={30} color={'white'} strokeWidth={2.5} />
+          </TouchableOpacity>
 
-      
-      <Animated.View
-        style={[
-          tailwind`bg-gray-100 w-[80%] self-center p-4 rounded-2xl shadow-2xl shadow-amber-600 relative`,
-          cardStyle,
-        ]}
-      >
-        <TextInput
-          style={tailwind`bg-white rounded-2xl mb-3 px-3 py-2`}
-          placeholder="Enter your name"
-          placeholderTextColor={'gray'}
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={tailwind`bg-white rounded-2xl mb-3 px-3 py-2`}
-          placeholder="Enter your email"
-          placeholderTextColor={'gray'}
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={tailwind`bg-white rounded-2xl mb-3 px-3 py-2`}
-          placeholder="Enter your password"
-          placeholderTextColor={'gray'}
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+          {/* Top Banner Section */}
+          <View style={tailwind`h-[30%] bg-amber-500 justify-center items-center rounded-b-[60px] shadow-lg`}>
+            <Image
+              source={require('../../assets/avtar.png')}
+              style={tailwind`h-40 w-40 mb-2`}
+              resizeMode="contain"
+            />
 
-        <TouchableOpacity
-          style={tailwind`bg-amber-500 justify-center items-center w-28 py-2 rounded-2xl self-center mt-2`}
-          onPress={handleSubmit}
-        >
-          <Text style={tailwind`text-white text-xl font-bold`}>Register</Text>
-        </TouchableOpacity>
+          </View>
 
-        <View style={tailwind` items-center`}>
-          <Text style={tailwind`self-center text-neutral-600 mt-3`}>
-          Already have an account?
-        </Text>
-        <TouchableOpacity
-          onPress={()=>navigation.navigate('Login')}
-        >
-          <Text style={tailwind`text-amber-500 text-xl underline font-bold`}>Login</Text>
-        </TouchableOpacity>
+          {/* Form Card Section */}
+          <Animated.View
+            style={[
+              tailwind`bg-white w-[90%] self-center -mt-10 p-8 rounded-[40px] shadow-2xl border border-gray-100`,
+              cardStyle,
+            ]}
+          >
+            <Text style={tailwind`text-2xl font-bold text-gray-800 mb-6 text-center`}>Create Account</Text>
+
+            <View style={tailwind`flex-row items-center bg-gray-50 rounded-2xl mb-4 px-4 border border-gray-200`}>
+              <UserIcon size={20} color="gray" />
+              <TextInput
+                style={tailwind`flex-1 py-4 ml-3 text-gray-700`}
+                placeholder="Full Name"
+                placeholderTextColor={'gray'}
+                autoCapitalize="words"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
+
+            <View style={tailwind`flex-row items-center bg-gray-50 rounded-2xl mb-4 px-4 border border-gray-200`}>
+              <EnvelopeIcon size={20} color="gray" />
+              <TextInput
+                style={tailwind`flex-1 py-4 ml-3 text-gray-700`}
+                placeholder="Email Address"
+                placeholderTextColor={'gray'}
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+              />
+            </View>
+
+            <View style={tailwind`flex-row items-center bg-gray-50 rounded-2xl mb-6 px-4 border border-gray-200`}>
+              <LockClosedIcon size={20} color="gray" />
+              <TextInput
+                style={tailwind`flex-1 py-4 ml-3 text-gray-700`}
+                placeholder="Password"
+                placeholderTextColor={'gray'}
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={tailwind`bg-amber-500 shadow-lg shadow-amber-400 py-4 rounded-2xl items-center mb-6`}
+              onPress={handleSubmit}
+              disabled={loading}
+            >
+              <Text style={tailwind`text-white text-xl font-bold`}>Sign Up</Text>
+            </TouchableOpacity>
+
+            <View style={tailwind`flex-row justify-center items-center`}>
+              <Text style={tailwind`text-gray-500`}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={tailwind`text-amber-500 font-bold underline`}>Login</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+
+          {/* Bottom Branding Section */}
+          <View style={tailwind`flex-1 justify-end items-center pb-8`}>
+            <Animated.View style={[tailwind`items-center`, textStyle]}>
+              <Text style={tailwind`text-amber-500 text-4xl font-black italic`}>
+                CookBook
+              </Text>
+              <Text style={tailwind`text-gray-400 text-sm tracking-widest mt-1`}>
+                JOIN THE FOODIE COMMUNITY
+              </Text>
+            </Animated.View>
+          </View>
         </View>
-      </Animated.View>
-
-     
-      <View style={tailwind`h-[40%] bg-amber-500 rounded-t-full justify-center items-center`}>
-        <Animated.Text
-          style={[tailwind`text-white text-5xl font-bold`, textStyle]}
-        >
-          CookBook
-        </Animated.Text>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
-export default Login;
+export default Signup;
+
