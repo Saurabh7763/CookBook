@@ -1,250 +1,203 @@
-import { View, Text, Image, ScrollView, StatusBar, TouchableOpacity } from 'react-native'
+import { View, Text, Image, ScrollView, StatusBar, TouchableOpacity, Dimensions } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import tailwind from 'twrnc';
-import { ActivityIndicator } from 'react-native';
 import { ChevronLeftIcon, ClockIcon, FireIcon, Square3Stack3DIcon } from "react-native-heroicons/outline";
 import { HeartIcon, UserGroupIcon } from "react-native-heroicons/solid";
 import { useNavigation } from '@react-navigation/native';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import { RecipeContext } from "../context/RecipeContext";
-import Animated, {useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing, interpolate, useAnimatedScrollHandler } from 'react-native-reanimated';
+import Loader from '../components/Loader';
 
+const { width } = Dimensions.get('window');
 
-const RecipeDetails = ({route}) => {
-    const {meal} = route.params;
-    const [loading , setLoading] = useState(false)
-    const [details, setDetails] = useState(null)
-    const [isFav, setIsFav] = useState(false)
-    const navigation = useNavigation()
+const RecipeDetails = ({ route }) => {
+  const { meal } = route.params;
+  const [loading, setLoading] = useState(false)
+  const [details, setDetails] = useState(null)
+  const navigation = useNavigation()
 
-    const imageTranslateY = useSharedValue(50)
-    const imageOpacity = useSharedValue(0)
-    const cardTranslateY = useSharedValue(50)
-    const cardOpacity = useSharedValue(0)
+  const opacity = useSharedValue(0);
+  const scrollY = useSharedValue(0);
 
-    useEffect(()=>{
-        imageTranslateY.value = withSpring(0,{
-            damping:12,
-            stiffness:100
-        })
-        imageOpacity.value = withTiming(1,{
-            duration:800,
-            easing: Easing.out(Easing.exp)
-        })
+  const { addToFavourites, removeFromFavourites, isFavourite } = useContext(RecipeContext)
+  const [fav, setFav] = useState(isFavourite(meal.idMeal));
 
-        setTimeout(()=>{
-            cardTranslateY.value = withSpring(0, {
-                damping:12,
-                stiffness:100
-            })
-            cardOpacity.value = withTiming(1, {
-                duration:800,
-                easing: Easing.out(Easing.exp)
-            })
-        },200)
-    },[])
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 500 });
+    getRecipeDetails();
+  }, []);
 
-    const cardAnimatedStyle = useAnimatedStyle(()=>({
-        transform: [{translateY: cardTranslateY.value}],
-        opacity: cardOpacity.value
-    }))
-    
-    const imageAnimatedStyle = useAnimatedStyle(()=>({
-        transform: [{translateY:imageTranslateY.value}],
-        opacity: imageOpacity.value
-    }))
-
-    const {addToFavourites,removeFromFavourites,isFavourite} = useContext(RecipeContext)
-    const [fav, setFav] = useState(isFavourite(meal.idMeal));
-
-    const toggleFavourite=()=>{
-        if (fav) {
-            removeFromFavourites(meal.idMeal)
-        }else{
-            addToFavourites(meal)
-        }
-            setFav(!fav)
+  const toggleFavourite = () => {
+    if (fav) {
+      removeFromFavourites(meal.idMeal)
+    } else {
+      addToFavourites(meal)
     }
+    setFav(!fav)
+  }
 
-    const getIngredients = (details)=>{
-        let ingredients = [];
-
-        for(let i =1; i<=20; i++){
-            const ingredient = details[`strIngredient${i}`]
-            const measure = details[`strMeasure${i}`]
-
-            if (ingredient) {
-            ingredients.push(`${measure? measure+" ":''}${ingredient}`)
-        }
-        }
-        return ingredients;
+  const getIngredients = (details) => {
+    let ingredients = [];
+    for (let i = 1; i <= 20; i++) {
+      const ingredient = details[`strIngredient${i}`]
+      const measure = details[`strMeasure${i}`]
+      if (ingredient && ingredient.trim() !== "") {
+        ingredients.push({ ingredient, measure });
+      }
     }
+    return ingredients;
+  }
 
-
-  const getRecipeDetails=async () => {
+  const getRecipeDetails = async () => {
     try {
-        setLoading(true)
-        const response = await axios.get(`https://themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`)
-        setDetails(response.data.meals[0])
+      setLoading(true)
+      const response = await axios.get(`https://themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`)
+      setDetails(response.data.meals[0])
     } catch (error) {
-        console.log(error)
-    }finally{
-        setLoading(false)
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  useEffect(()=>{
-    getRecipeDetails()
-  },[])
-
-  if (loading) {
-    return (
-      <View style={tailwind`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color="#ffa62a" />
-      </View>
-    );
-  }
-
-  const getYoutubeVideoId= url=>{
+  const getYoutubeVideoId = url => {
     const regex = /[?&]v=([^&]+)/;
     const match = url.match(regex);
-
-    if(match && match[1]){
-        return match[1];
-    }
-    return null;
+    return match && match[1] ? match[1] : null;
   }
 
-  if (!details) {
-    return(
-        <View style={tailwind`flex-1 justify-center items-center`}>
-            <Text style={tailwind`text-2xl text-neutral-600 font-bold`}>No record found.</Text>
-        </View>
-    )
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      scrollY.value,
+      [-100, 0, 100],
+      [1.2, 1, 1],
+      'clamp'
+    );
+    return {
+      transform: [{ scale }]
+    };
+  });
+
+  if (loading || !details) {
+    return <Loader message="Preparing your secret recipe..." />;
   }
 
-  return(
-    <ScrollView style={tailwind`flex-1 p-2 mb-3`}>
-    <StatusBar barStyle="light" backgroundColor="#fff" />
+  return (
+    <View style={tailwind`flex-1 bg-white`}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      
+      <Animated.ScrollView 
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        style={tailwind`flex-1`}
+      >
+        {/* Header Image */}
         <View style={tailwind`relative`}>
-            <Animated.View style={imageAnimatedStyle}>
-                <Image 
-                   source={{uri:details.strMealThumb}}
-                   style={tailwind`w-[100%] h-90 rounded-7`}
+          <Animated.View style={[tailwind`w-full h-100`, imageAnimatedStyle]}>
+            <Image
+              source={{ uri: details.strMealThumb }}
+              style={tailwind`w-full h-full`}
+              resizeMode="cover"
             />
-            </Animated.View>
-            <View style={tailwind`absolute top-4 left-3 bg-white p-1 rounded-full items-center`}
-             >
-              <ChevronLeftIcon
-                size={40}
-                color={"#000"}
-                onPress={()=>navigation.goBack()}
-               />
-             </View>
-            <TouchableOpacity
-              style={tailwind`absolute top-4 right-3 bg-white p-1 rounded-full items-center`}
-              onPress={toggleFavourite}
-            >
-              <HeartIcon color={fav ? "red" : "gray"} size={40} />
-            </TouchableOpacity>
+          </Animated.View>
         </View>
 
-
-        <Text style={tailwind`text-2xl text-neutral-600 font-bold mt-2 px-1`}>{details.strMeal}</Text>        
-        <Text style={tailwind`text-lg text-neutral-600  mb-2 px-1`}>{details.strArea}</Text> 
-
-        
-
-        <Animated.View style={[tailwind`flex flex-row items-center justify-around my-2`,cardAnimatedStyle]}>
-             <View style={tailwind`bg-amber-300 py-2 items-center justify-center rounded-8 w-17 `}>
-                <ClockIcon
-                    style={tailwind`bg-white rounded-full mb-1 p-2`}
-                    strokeWidth={2}
-                    size={30}
-                />
-                <View  style={tailwind`items-center`}>
-                    <Text style={tailwind`text-neutral-600  text-lg`} >35</Text>
-                    <Text style={tailwind`text-neutral-600 text-xs`}>min</Text>
-                </View>
-             </View>
-             <View style={tailwind`bg-amber-300 py-2 items-center justify-center rounded-8 w-17`}>
-                <UserGroupIcon
-                    style={tailwind`bg-white rounded-full mb-1 p-2`}
-                    strokeWidth={2}
-                    size={30}
-                />
-                <View  style={tailwind`items-center`}>
-                    <Text style={tailwind`text-neutral-600  text-lg`} >03</Text>
-                    <Text style={tailwind`text-neutral-600 text-xs`}>servings</Text>
-                </View>
-             </View>
-             <View style={tailwind`bg-amber-300 py-2 items-center justify-center rounded-8 w-17`}>
-                <FireIcon
-                    style={tailwind`bg-white rounded-full mb-1 p-2`}
-                    strokeWidth={2}
-                    size={30}
-                />
-                <View  style={tailwind`items-center`}>
-                    <Text style={tailwind`text-neutral-600  text-lg`} >100</Text>
-                    <Text style={tailwind`text-neutral-600 text-xs`}>cal</Text>
-                </View>
-             </View>
-             <View style={tailwind`bg-amber-300 py-2 items-center justify-center rounded-8 w-17`}>
-                <Square3Stack3DIcon
-                    style={tailwind`bg-white rounded-full mb-1 p-4`}
-                    strokeWidth={2}
-                    size={30}
-                />
-                <View style={tailwind`items-center`}>
-                <Text style={tailwind`text-neutral-600 text-base`}>Easy</Text>
-                <Text style={tailwind`text-neutral-600  text-xs`} > </Text>
-                </View>
-             </View>
-        </Animated.View>
-
-        <View style={tailwind`mx-3 mt-2`}>
-            <Text style={tailwind`text-2xl text-neutral-600 mb-2 font-bold`}>ingredients</Text>
-
-            {getIngredients(details).map((item, index)=>(
-                <View key={index} style={tailwind`flex-row items-start mb-1`}>
-                    <Text style={tailwind`text-amber-600 text-2xl mr-2`}>•</Text>
-                    <Text style={tailwind`text-lg text-neutral-700 flex-shrink`}>{item}</Text>
-                </View>
-            ))}  
-        </View>
-
-
-        <View style={tailwind`mx-3 mb-2 mt-3`}>
-            <Text style={tailwind`text-2xl text-neutral-600 font-bold`}>Instruction</Text>
-            <View style={tailwind`max-w-[100%] my-1`}>
-                <Text style={tailwind`text-base text-neutral-600 p-1`}>{details.strInstructions}</Text>
+        {/* Content Card */}
+        <View style={[tailwind`bg-white -mt-10 rounded-t-[40px] px-6 pt-8 pb-10 shadow-2xl`]}>
+          {/* Title & Area */}
+          <View style={tailwind`flex-row justify-between items-start mb-6`}>
+            <View style={tailwind`flex-1 mr-4`}>
+              <Text style={tailwind`text-3xl font-black text-gray-900 leading-tight`}>
+                {details.strMeal}
+              </Text>
+              <Text style={tailwind`text-amber-600 font-bold text-sm uppercase tracking-widest mt-1`}>
+                {details.strArea} Cuisine
+              </Text>
             </View>
-        </View>
+          </View>
 
-        {
-            details.strYoutube &&  (
-                <View style={tailwind`mx-2 mt-5 mb-3`}>
-                   <View style={tailwind`flex-row items-center`}>
-                       <Image
-                           source={require('../../assets/youtube.png')}
-                           style={tailwind`h-10 w-10 mr-1`}
-                       />
-                       <Text style={tailwind`text-2xl text-neutral-600 font-bold`}>Recipe Video</Text>
-                   </View>
+          {/* Quick Info Cards */}
+          <View style={tailwind`flex-row justify-between mb-8`}>
+            <InfoCard icon={<ClockIcon size={24} color="#f59e0b" />} value="35" label="Min" />
+            <InfoCard icon={<UserGroupIcon size={24} color="#f59e0b" />} value="03" label="Serves" />
+            <InfoCard icon={<FireIcon size={24} color="#f59e0b" />} value="105" label="Cal" />
+            <InfoCard icon={<Square3Stack3DIcon size={24} color="#f59e0b" />} value="Easy" label="Level" />
+          </View>
 
-                   <View style={tailwind`mt-2`}>
-                    <YoutubeIframe
-                        videoId={getYoutubeVideoId(details.strYoutube)}
-                        height={300}
-                    />
-                   </View>
+          {/* Ingredients */}
+          <View style={tailwind`mb-8`}>
+            <Text style={tailwind`text-2xl font-black text-gray-800 mb-4`}>Ingredients</Text>
+            <View style={tailwind`bg-amber-50/50 rounded-3xl p-4`}>
+               {getIngredients(details).map((item, index) => (
+                <View key={index} style={tailwind`flex-row items-center border-b border-amber-100/50 py-3 last:border-0`}>
+                  <View style={tailwind`w-2 h-2 rounded-full bg-amber-400 mr-3`} />
+                  <Text style={tailwind`text-gray-700 font-bold text-base flex-1`}>{item.ingredient}</Text>
+                  <Text style={tailwind`text-amber-700 font-black text-sm`}>{item.measure}</Text>
                 </View>
-            )}
+              ))}
+            </View>
+          </View>
 
+          {/* Instructions */}
+          <View style={tailwind`mb-8`}>
+            <Text style={tailwind`text-2xl font-black text-gray-800 mb-4`}>Instructions</Text>
+            <View style={tailwind`bg-gray-50 rounded-3xl p-6`}>
+              <Text style={tailwind`text-gray-600 leading-7 text-base italic`}>
+                {details.strInstructions}
+              </Text>
+            </View>
+          </View>
 
+          {/* Video Section */}
+          {details.strYoutube && (
+            <View style={tailwind`mt-4 mb-10`}>
+              <Text style={tailwind`text-2xl font-black text-gray-800 mb-4`}>Recipe Video</Text>
+              <View style={tailwind`rounded-[32px] overflow-hidden shadow-lg bg-black`}>
+                <YoutubeIframe
+                  videoId={getYoutubeVideoId(details.strYoutube)}
+                  height={220}
+                />
+              </View>
+            </View>
+          )}
+        </View>
+      </Animated.ScrollView>
 
-    </ScrollView>
+      {/* Floating Buttons Holder - Logic to keep them fixed but separate */}
+      <View style={tailwind`absolute top-12 left-0 right-0 px-6 flex-row justify-between items-center z-50`}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={tailwind`bg-white/90 p-3 rounded-2xl shadow-lg border border-white`}
+        >
+          <ChevronLeftIcon size={24} color="#1f2937" strokeWidth={3} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          onPress={toggleFavourite}
+          style={tailwind`bg-white/90 p-3 rounded-2xl shadow-lg border border-white`}
+        >
+          <HeartIcon size={24} color={fav ? "#ef4444" : "#9ca3af"} />
+        </TouchableOpacity>
+      </View>
+    </View>
   )
 }
-export default RecipeDetails
+
+const InfoCard = ({ icon, value, label }) => (
+  <View style={tailwind`bg-amber-100/50 items-center justify-center rounded-[28px] w-[21%] py-4 border border-amber-200/30`}>
+    <View style={tailwind`bg-white p-2 rounded-2xl mb-2 shadow-sm`}>
+      {icon}
+    </View>
+    <Text style={tailwind`text-gray-900 font-black text-base`}>{value}</Text>
+    <Text style={tailwind`text-gray-500 font-bold text-[10px] uppercase`}>{label}</Text>
+  </View>
+);
+
+export default RecipeDetails;
