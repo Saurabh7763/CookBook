@@ -6,12 +6,14 @@ import Card from "./Card";
 import { RecipeContext } from "../context/RecipeContext";
 import { useNavigation } from "@react-navigation/native";
 import Animated from 'react-native-reanimated';
+import { useTheme } from "../context/ThemeContext";
 
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
 
 const Recipe = ({ onScroll, scrollEventThrottle = 16, contentContainerStyle }) => {
   const { recipe, recipeLoading } = useContext(RecipeContext);
   const navigation = useNavigation();
+  const { theme, themeStyles } = useTheme();
 
   if (recipeLoading) return null;
 
@@ -20,7 +22,7 @@ const Recipe = ({ onScroll, scrollEventThrottle = 16, contentContainerStyle }) =
       <View style={tailwind`flex-1`}>
         {recipe.length === 0 ? (
           <View style={tailwind`flex justify-center items-center mt-20`}>
-            <Text style={tailwind`text-xl text-gray-400 font-medium`}>
+            <Text style={tailwind`text-xl ${themeStyles.subText} font-medium`}>
               No recipes found yet...
             </Text>
           </View>
@@ -46,11 +48,11 @@ const Recipe = ({ onScroll, scrollEventThrottle = 16, contentContainerStyle }) =
             scrollEventThrottle={scrollEventThrottle}
             contentContainerStyle={contentContainerStyle}
             ListHeaderComponent={() => (
-                <View style={tailwind`mb-4`}>
-                    <Text style={tailwind`text-3xl font-black text-gray-800`}>
+                <View style={tailwind`mb-4 px-2`}>
+                    <Text style={tailwind`text-3xl font-black ${themeStyles.text}`}>
                         Special Recipes
                     </Text>
-                    <Text style={tailwind`text-gray-500 font-medium text-sm mt-1 uppercase tracking-tighter`}>
+                    <Text style={tailwind`${themeStyles.subText} font-medium text-sm mt-1 uppercase tracking-tighter`}>
                         {recipe.length} mouth-watering results
                     </Text>
                 </View>

@@ -1,14 +1,16 @@
 import React, { useContext, useEffect } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import tailwind from "twrnc";
 import { RecipeContext } from "../context/RecipeContext";
+import { useTheme } from "../context/ThemeContext";
 import Card from "../components/Card";
 import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 
 const FavouriteScreen = ({ navigation }) => {
   const { favourites } = useContext(RecipeContext);
+  const { theme, themeStyles } = useTheme();
   const translateY = useSharedValue(50)
   const opacity = useSharedValue(0)
 
@@ -29,27 +31,33 @@ const FavouriteScreen = ({ navigation }) => {
   }))
 
   return (
-    <View style={tailwind`flex-1 bg-white pt-10 px-4`}>
-      <View style={tailwind`flex-row items-center mb-3`}>
-        <ChevronLeftIcon
-          style={tailwind`mr-2`}
-          size={30}
-          strokeWidth={2.5}
+    <View style={tailwind`flex-1 ${themeStyles.background} pt-12 px-4`}>
+      <StatusBar barStyle={themeStyles.statusBar} />
+      <View style={tailwind`flex-row items-center mb-6`}>
+        <TouchableOpacity
           onPress={() => navigation.goBack()}
-        />
-        <Text style={tailwind`text-2xl text-neutral-600 font-bold`}>
-          Favourite Recipes
+          style={tailwind`${theme === 'light' ? 'bg-gray-100' : 'bg-slate-800'} p-2 rounded-2xl mr-4`}
+        >
+          <ChevronLeftIcon size={24} color={theme === 'light' ? "#374151" : "#f3f4f6"} strokeWidth={3} />
+        </TouchableOpacity>
+        <Text style={tailwind`text-2xl ${themeStyles.text} font-black`}>
+          Your Favourites
         </Text>
       </View>
 
       {favourites.length === 0 ? (
-        <Text
-          style={tailwind`text-lg font-semibold text-neutral-500 text-center pt-16`}
-        >
-          No favourites yet ❤️
-        </Text>
+        <View style={tailwind`flex-1 justify-center items-center pb-20`}>
+           <Text
+            style={tailwind`text-xl font-bold ${themeStyles.subText} text-center`}
+          >
+            No favourites yet ❤️
+          </Text>
+          <Text style={tailwind`text-sm ${themeStyles.subText} text-center mt-2 px-10`}>
+            Explore recipes and tap the heart icon to save them here!
+          </Text>
+        </View>
       ) : (
-        <Animated.View style={[tailwind`mt-3 flex-1`, favouriteAnimatedScreen]}>
+        <Animated.View style={[tailwind`mt-2 flex-1`, favouriteAnimatedScreen]}>
           <FlashList
             masonry
             data={favourites}

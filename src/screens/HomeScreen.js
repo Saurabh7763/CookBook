@@ -9,6 +9,7 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
+
 import tailwind from "twrnc";
 import Header from "../components/Header";
 import { MagnifyingGlassIcon } from "react-native-heroicons/outline";
@@ -16,6 +17,7 @@ import Categories from "../components/Categories";
 import Recipe from "../components/Recipe";
 import axios from "axios";
 import { RecipeContext } from "../context/RecipeContext";
+import { useTheme } from "../context/ThemeContext";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -32,6 +34,7 @@ const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight : 
 const HEADER_TOTAL_HEIGHT = 240; // Estimated height of Header + SearchBar
 
 const HomeScreen = () => {
+  const { theme, themeStyles } = useTheme();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("Dessert");
@@ -70,7 +73,14 @@ const HomeScreen = () => {
     },
   });
 
-  const headerTranslateStyle = useAnimatedStyle(() => {
+  const headerOpacityStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [0, 100], [1, 0], Extrapolate.CLAMP),
+    transform: [{ 
+      scale: interpolate(scrollY.value, [0, 100], [1, 0.9], Extrapolate.CLAMP) 
+    }],
+  }));
+
+  const stickyCategoryStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
       scrollY.value,
       [0, HEADER_TOTAL_HEIGHT],
@@ -79,24 +89,9 @@ const HomeScreen = () => {
     );
     return {
       transform: [{ translateY }],
-      opacity: interpolate(scrollY.value, [0, 150], [1, 0], Extrapolate.CLAMP),
-    };
-  });
-
-  const stickyCategoryStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [0, HEADER_TOTAL_HEIGHT],
-      [0, -(HEADER_TOTAL_HEIGHT - STATUS_BAR_HEIGHT - 10)], // Adjust by 10 to give breathing room
-      Extrapolate.CLAMP
-    );
-    return {
-      transform: [{ translateY }],
-      backgroundColor: 'white',
-      paddingTop: scrollY.value > HEADER_TOTAL_HEIGHT ? 6 : 0, 
-      paddingBottom: scrollY.value > HEADER_TOTAL_HEIGHT ? 10 : 0,
+      backgroundColor: theme === 'light' ? 'white' : '#0f172a',
       borderBottomWidth: scrollY.value > HEADER_TOTAL_HEIGHT ? 1 : 0,
-      borderBottomColor: '#f3f4f6',
+      borderBottomColor: theme === 'light' ? '#f3f4f6' : '#1e293b',
     };
   });
 
@@ -149,62 +144,76 @@ const HomeScreen = () => {
   }, [activeCategory, searchQuery]);
 
   return (
-    <View style={tailwind`flex-1 bg-white`}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" translucent={true} />
+    <View style={tailwind`flex-1 ${themeStyles.background}`}>
+      <StatusBar barStyle={themeStyles.statusBar} backgroundColor="transparent" translucent={true} />
 
       {(loading || recipeLoading) && (
-        <View style={[StyleSheet.absoluteFillObject, { zIndex: 10 }]}>
-           <Loader message="Cooking something delicious..." />
+        <View style={[StyleSheet.absoluteFillObject, { zIndex: 100 }]}>
+          <Loader message="Preparing your kitchen..." />
         </View>
       )}
 
-      {/* Persistent White background for Status Bar area */}
+      {/* Persistent background for Status Bar area */}
       <View style={[
-          tailwind`absolute top-0 left-0 right-0 z-30 bg-white`,
-          { height: STATUS_BAR_HEIGHT }
+        tailwind`absolute top-0 left-0 right-0 z-30`,
+        {
+          height: STATUS_BAR_HEIGHT,
+          backgroundColor: theme === 'light' ? 'white' : '#0f172a'
+        }
       ]} />
 
-      {/* This container holds the scrollable header parts */}
-      <View style={tailwind`absolute top-0 left-0 right-0 z-20`}>
-        <Animated.View style={headerTranslateStyle}>
-            <Header />
-            <View style={tailwind`mx-4 my-2`}>
-                <View style={tailwind`relative flex-row items-center bg-gray-100 rounded-2xl border border-gray-200 px-4 py-1`}>
-                    <MagnifyingGlassIcon size={20} color="gray" />
-                    <TextInput
-                        style={tailwind`flex-1 ml-2 py-2 text-gray-700`}
-                        placeholder="Search for any recipe..."
-                        placeholderTextColor="gray"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        onSubmitEditing={handleSearch}
-                        returnKeyType="search"
-                    />
+      {/* Sticky Header Section */}
+      <Animated.View style={[
+          tailwind`absolute top-0 left-0 right-0 z-20`,
+          stickyCategoryStyle,
+          { height: HEADER_TOTAL_HEIGHT + STATUS_BAR_HEIGHT + 80 } // Fixed height for consistency
+      ]}>
+          <View style={{ paddingTop: STATUS_BAR_HEIGHT + 15 }}>
+              <Animated.View style={headerOpacityStyle}>
+                <Header />
+              </Animated.View>
+              
+              {/* Search Bar */}
+              <View style={tailwind`mx-4 my-2`}>
+                <View style={tailwind`relative flex-row items-center ${theme === 'light' ? 'bg-gray-100' : 'bg-slate-800'} rounded-2xl border ${theme === 'light' ? 'border-gray-200' : 'border-slate-700'} px-4 py-1.5`}>
+                  <MagnifyingGlassIcon size={20} color={theme === 'light' ? "gray" : "#94a3b8"} strokeWidth={2} />
+                  <TextInput
+                    placeholder="Search for any recipe..."
+                    placeholderTextColor={theme === 'light' ? "gray" : "#64748b"}
+                    style={tailwind`flex-1 ml-2 text-base font-medium ${themeStyles.text}`}
+                    value={searchQuery}
+                    onChangeText={(text) => {
+                      setSearchQuery(text);
+                      if (text === "") {
+                        fetchRecipe(activeCategory);
+                      }
+                    }}
+                    onSubmitEditing={handleSearch}
+                    returnKeyType="search"
+                  />
                 </View>
-            </View>
-        </Animated.View>
+              </View>
 
-        {/* Sticky Categories Bar */}
-        <Animated.View style={[stickyCategoryStyle, categoriesAnimatedEntrance]}>
-          <Categories
-            itemData={categories}
-            isActive={activeCategory}
-            setIsActive={(category) => {
-              setActiveCategory(category);
-              setSearchQuery("");
-            }}
-          />
-        </Animated.View>
-      </View>
+              <Categories
+                itemData={categories}
+                isActive={activeCategory}
+                setIsActive={(category) => {
+                  setActiveCategory(category);
+                  setSearchQuery("");
+                }}
+              />
+          </View>
+      </Animated.View>
 
-      <Recipe 
-          onScroll={scrollHandler} 
-          contentContainerStyle={{ paddingTop: 340 }} // Space for Header + Search + Categories
+      <Recipe
+        onScroll={scrollHandler}
+        contentContainerStyle={{ 
+            paddingTop: HEADER_TOTAL_HEIGHT + STATUS_BAR_HEIGHT + 80, // Enough space for sticky section
+            paddingBottom: 20 
+        }}
       />
     </View>
   );
 };
 
 export default HomeScreen;
-
-

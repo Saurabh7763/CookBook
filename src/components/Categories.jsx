@@ -1,8 +1,11 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import tailwind from 'twrnc';
+import { useTheme } from "../context/ThemeContext";
 
 const Categories = ({ itemData = [], isActive, setIsActive }) => {
+  const { theme } = useTheme();
+
   return (
     <View style={tailwind`px-1`}>
       <ScrollView
@@ -32,7 +35,7 @@ const Categories = ({ itemData = [], isActive, setIsActive }) => {
               </View>
               <Text style={[
                   tailwind`mt-2 text-xs font-bold`,
-                  { color: active ? '#f59e0b' : '#6b7280' }
+                  { color: active ? '#f59e0b' : (theme === 'light' ? '#6b7280' : '#9ca3af') }
               ]}>
                 {item.strCategory}
               </Text>

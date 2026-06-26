@@ -5,36 +5,43 @@ import { BellIcon, UserCircleIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import Typewriter from './Typewriter';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Header = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { theme, themeStyles } = useTheme();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    if (hour < 21) return 'Good Evening';
+    return 'Good Night';
+  };
 
   return (
     <View
       style={[
-        tailwind`bg-white px-4 pb-2`,
-        {
-          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 50,
-        },
+        tailwind`${themeStyles.background} px-4 pb-2`,
       ]}
     >
       <View style={tailwind`flex-row items-center justify-between`}>
         <View>
-          <Text style={tailwind`text-gray-500 text-sm font-medium uppercase tracking-widest`}>
-            Good Morning
+          <Text style={tailwind`text-sm font-medium uppercase tracking-widest ${themeStyles.subText}`}>
+            {getGreeting()}
           </Text>
-          <Text style={tailwind`text-2xl font-black text-gray-800`}>
+          <Text style={tailwind`text-2xl font-black ${themeStyles.text}`}>
             {user?.displayName || 'Chief Foodie'}! 🍳
           </Text>
         </View>
         <View style={tailwind`flex-row gap-3`}>
           <TouchableOpacity
-            style={tailwind`bg-gray-100 p-2 rounded-full border border-gray-200`}
+            style={tailwind`${theme === 'light' ? 'bg-gray-100' : 'bg-slate-800'} p-2 rounded-full border ${theme === 'light' ? 'border-gray-200' : 'border-slate-700'}`}
             onPress={() => navigation.navigate('Notification')}
           >
-            <BellIcon size={26} color="#374151" />
-            <View style={tailwind`absolute right-2 top-2 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white`} />
+            <BellIcon size={26} color={theme === 'light' ? "#374151" : "#f3f4f6"} />
+            <View style={tailwind`absolute right-2 top-2 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 ${theme === 'light' ? 'border-white' : 'border-slate-800'}`} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -47,7 +54,7 @@ const Header = () => {
                 style={tailwind`h-11 w-11 rounded-full border-2 border-amber-500`}
               />
             ) : (
-              <View style={tailwind`bg-amber-100 p-0.5 rounded-full border-2 border-amber-500`}>
+              <View style={tailwind`${theme === 'light' ? 'bg-amber-100' : 'bg-slate-800/50'} p-0.5 rounded-full border-2 border-amber-500`}>
                 <Image
                   source={require('../../assets/avtar.png')}
                   style={tailwind`h-10 w-10 rounded-full`}
@@ -66,7 +73,7 @@ const Header = () => {
           highlightStyle={tailwind`text-amber-500 font-extrabold`}
           speed={50}
           delay={1000}
-          style={tailwind`text-lg text-gray-600 font-semibold leading-6`}
+          style={tailwind`text-lg ${themeStyles.subText} font-semibold leading-6`}
         />
       </View>
     </View>

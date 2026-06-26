@@ -9,11 +9,13 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useTheme } from "../context/ThemeContext";
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
+  const { theme, themeStyles } = useTheme();
 
- 
+
   const ring1padding = useSharedValue(0);
   const ring2padding = useSharedValue(0);
   const text1TranslateY = useSharedValue(30);
@@ -38,7 +40,7 @@ const WelcomeScreen = () => {
     }, 200);
   }, []);
 
- 
+
   const text1AnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: text1TranslateY.value }],
     opacity: text1Opacity.value,
@@ -49,7 +51,7 @@ const WelcomeScreen = () => {
     opacity: text2Opacity.value,
   }));
 
- 
+
   useEffect(() => {
     ring1padding.value = 0;
     ring2padding.value = 0;
@@ -74,14 +76,14 @@ const WelcomeScreen = () => {
   }));
 
   return (
-    <View style={tailwind`flex-1 justify-center items-center bg-amber-500`}>
+    <View style={tailwind`flex-1 justify-center items-center ${theme === 'light' ? 'bg-amber-500' : 'bg-slate-950'}`}>
       <Animated.View
-        style={[tailwind`bg-white/20 rounded-full my-5`, ring2Style]}
+        style={[tailwind`${theme === 'light' ? 'bg-white/20' : 'bg-slate-800/40'} rounded-full my-5`, ring2Style]}
       >
-        <Animated.View style={[tailwind`rounded-full bg-white/20`, ring1Style]}>
+        <Animated.View style={[tailwind`rounded-full ${theme === 'light' ? 'bg-white/20' : 'bg-slate-700/40'}`, ring1Style]}>
           <Image
             source={require("../../assets/avtar.png")}
-            style={tailwind`h-48 w-48 rounded-full bg-white`}
+            style={tailwind`h-48 w-48 rounded-full ${theme === 'light' ? 'bg-white' : 'bg-slate-900'}`}
             resizeMode="cover"
           />
         </Animated.View>
@@ -98,7 +100,7 @@ const WelcomeScreen = () => {
 
       <Animated.Text
         style={[
-          tailwind`text-white text-lg tracking-widest`,
+          tailwind`text-amber-100/80 text-lg tracking-widest font-medium`,
           text2AnimatedStyle,
         ]}
       >
