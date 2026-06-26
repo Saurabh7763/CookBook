@@ -12,6 +12,7 @@ export const RecipeProvider = ({ children }) => {
   const fetchRecipe = async (category = null, meals = null) => {
   try {
     setRecipeLoading(true);
+    setRecipe([]); // Clear current recipes immediately
 
    
     if (meals !== null) {

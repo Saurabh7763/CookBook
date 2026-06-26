@@ -13,19 +13,15 @@ const Recipe = ({ onScroll, scrollEventThrottle = 16, contentContainerStyle }) =
   const { recipe, recipeLoading } = useContext(RecipeContext);
   const navigation = useNavigation();
 
+  if (recipeLoading) return null;
+
   return (
-    <View style={tailwind`mx-4 mt-1 flex-1`}>
-      <View style={tailwind`flex-1 mt-2`}>
-        {recipeLoading ? (
-          <ActivityIndicator
-            size="large"
-            color="#ffa62a"
-            style={tailwind`mt-10`}
-          />
-        ) : recipe.length === 0 ? (
-          <View style={tailwind`flex justify-center items-center mt-5`}>
-            <Text style={tailwind`text-2xl text-neutral-600 font-semibold`}>
-              No recipe found
+    <View style={tailwind`mx-2 flex-1`}>
+      <View style={tailwind`flex-1`}>
+        {recipe.length === 0 ? (
+          <View style={tailwind`flex justify-center items-center mt-20`}>
+            <Text style={tailwind`text-xl text-gray-400 font-medium`}>
+              No recipes found yet...
             </Text>
           </View>
         ) : (
@@ -50,9 +46,14 @@ const Recipe = ({ onScroll, scrollEventThrottle = 16, contentContainerStyle }) =
             scrollEventThrottle={scrollEventThrottle}
             contentContainerStyle={contentContainerStyle}
             ListHeaderComponent={() => (
-                <Text style={tailwind`text-2xl font-black text-gray-800 mt-2 mb-4`}>
-                    Special Recipes
-                </Text>
+                <View style={tailwind`mb-4`}>
+                    <Text style={tailwind`text-3xl font-black text-gray-800`}>
+                        Special Recipes
+                    </Text>
+                    <Text style={tailwind`text-gray-500 font-medium text-sm mt-1 uppercase tracking-tighter`}>
+                        {recipe.length} mouth-watering results
+                    </Text>
+                </View>
             )}
           />
         )}

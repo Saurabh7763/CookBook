@@ -6,6 +6,8 @@ import {
   StatusBar,
   TouchableOpacity,
   Text,
+  Platform,
+  StyleSheet,
 } from "react-native";
 import tailwind from "twrnc";
 import Header from "../components/Header";
@@ -24,13 +26,17 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from "react-native-reanimated";
+import Loader from "../components/Loader";
+
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight : 44;
+const HEADER_TOTAL_HEIGHT = 240; // Estimated height of Header + SearchBar
 
 const HomeScreen = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("Dessert");
   const [searchQuery, setSearchQuery] = useState("");
-  const { fetchRecipe } = useContext(RecipeContext);
+  const { fetchRecipe, recipeLoading } = useContext(RecipeContext);
 
   const scrollY = useSharedValue(0);
 
@@ -67,8 +73,8 @@ const HomeScreen = () => {
   const headerTranslateStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
       scrollY.value,
-      [0, 240], // Threshold for header + search
-      [0, -240],
+      [0, HEADER_TOTAL_HEIGHT],
+      [0, -HEADER_TOTAL_HEIGHT],
       Extrapolate.CLAMP
     );
     return {
@@ -80,15 +86,16 @@ const HomeScreen = () => {
   const stickyCategoryStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
       scrollY.value,
-      [0, 240],
-      [0, -240],
+      [0, HEADER_TOTAL_HEIGHT],
+      [0, -(HEADER_TOTAL_HEIGHT - STATUS_BAR_HEIGHT - 10)], // Adjust by 10 to give breathing room
       Extrapolate.CLAMP
     );
     return {
       transform: [{ translateY }],
-      backgroundColor: scrollY.value > 240 ? 'white' : 'transparent',
-      paddingBottom: scrollY.value > 240 ? 10 : 0,
-      borderBottomWidth: scrollY.value > 240 ? 1 : 0,
+      backgroundColor: 'white',
+      paddingTop: scrollY.value > HEADER_TOTAL_HEIGHT ? 6 : 0, 
+      paddingBottom: scrollY.value > HEADER_TOTAL_HEIGHT ? 10 : 0,
+      borderBottomWidth: scrollY.value > HEADER_TOTAL_HEIGHT ? 1 : 0,
       borderBottomColor: '#f3f4f6',
     };
   });
@@ -143,7 +150,19 @@ const HomeScreen = () => {
 
   return (
     <View style={tailwind`flex-1 bg-white`}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor="white" translucent={true} />
+
+      {(loading || recipeLoading) && (
+        <View style={[StyleSheet.absoluteFillObject, { zIndex: 10 }]}>
+           <Loader message="Cooking something delicious..." />
+        </View>
+      )}
+
+      {/* Persistent White background for Status Bar area */}
+      <View style={[
+          tailwind`absolute top-0 left-0 right-0 z-30 bg-white`,
+          { height: STATUS_BAR_HEIGHT }
+      ]} />
 
       {/* This container holds the scrollable header parts */}
       <View style={tailwind`absolute top-0 left-0 right-0 z-20`}>
@@ -178,19 +197,14 @@ const HomeScreen = () => {
         </Animated.View>
       </View>
 
-      {loading ? (
-        <View style={tailwind`flex-1 justify-center items-center`}>
-           <ActivityIndicator size="large" color="#ffa62a" />
-        </View>
-      ) : (
-        <Recipe 
-            onScroll={scrollHandler} 
-            contentContainerStyle={{ paddingTop: 340 }} // Space for Header (180) + Search (60) + Categories (100)
-        />
-      )}
+      <Recipe 
+          onScroll={scrollHandler} 
+          contentContainerStyle={{ paddingTop: 340 }} // Space for Header + Search + Categories
+      />
     </View>
   );
 };
 
 export default HomeScreen;
+
 

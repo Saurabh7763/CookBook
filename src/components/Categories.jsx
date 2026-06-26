@@ -8,7 +8,7 @@ const Categories = ({ itemData = [], isActive, setIsActive }) => {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={tailwind`px-3 pb-2`}
+        contentContainerStyle={tailwind`px-3 pt-2 pb-2`}
       >
         {itemData.map((item) => {
           const active = isActive === item.strCategory;

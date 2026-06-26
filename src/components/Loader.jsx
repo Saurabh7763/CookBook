@@ -41,8 +41,8 @@ const Loader = ({ message = "Cooking something delicious..." }) => {
   });
 
   return (
-    <View style={[StyleSheet.absoluteFillObject, tailwind`justify-center items-center bg-black/60 z-50`]}>
-      <View style={tailwind`bg-white p-8 rounded-3xl items-center shadow-2xl`}>
+    <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(255, 255, 255, 0.7)' }, tailwind`justify-center items-center`]}>
+      <View style={tailwind`bg-white p-8 rounded-3xl items-center shadow-2xl border border-gray-100`}>
         <Animated.View style={animatedIconStyle}>
           <View style={tailwind`bg-amber-100 p-4 rounded-full`}>
             <HeartIcon size={50} color="#f59e0b" />
