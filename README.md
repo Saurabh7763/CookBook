@@ -1,44 +1,90 @@
 # 🍳 CookBook — React Native (Expo) App
 
-CookBook is a modern recipe app built with **React Native** and **Expo**, designed to help food lovers discover, browse, and cook delicious meals at home.  
-It features category-based browsing, animated transitions, and a clean UI with Tailwind CSS.
+# 🍳 CookBook
+
+CookBook is a modern recipe app built with React Native and Expo, designed to help food lovers discover, browse, and cook delicious meals at home.  
+It features category-based browsing, smooth animations, and a clean UI powered by Tailwind CSS.
+
+---
+
+
+## 🎥 Demo
+
+https://github.com/user-attachments/assets/a6718b4f-f5c4-47cf-ad1a-11ba0befca3c
 
 ---
 
 ## 🚀 Features
 
-- 🍔 **Recipe Categories** — Browse by food type (Beef, Chicken, Dessert, etc.)
-- 🔍 **Search Functionality** — Find your favorite meals quickly.
-- ✨ **Smooth Animations** — Powered by Reanimated for a delightful experience.
-- 💛 **Typewriter Header Text** — “Cook at Home, Taste the Love.”
-- 📱 **Responsive Design** — Works perfectly on Android and iOS.
-- ⚡ **Expo + Tailwind (twrnc)** — For rapid styling and development.
+- 🍔 **Recipe Categories** — Browse meals by category (Beef, Chicken, Dessert, etc.)  
+- 🔍 **Search Functionality** — Quickly find recipes by name  
+- 🧱 **Masonry Layout** — Pinterest-style grid for better content discovery  
+- ⚡ **High-Performance Lists** — Optimized rendering for large datasets  
+- ✨ **Smooth Animations** — Fluid transitions and interactions  
+- 💛 **Typewriter Header Text** — “Cook at Home, Taste the Love”  
+- ❤️ **Favourites System** — Save and access recipes locally  
+- 🔐 **User Authentication** — Secure Login/Signup  
+- 📺 **Recipe Video Support** — Watch cooking tutorials inside the app  
+- 🌐 **Live API Integration** — Fetch real-time recipe data  
+- 📱 **Responsive Design** — Works seamlessly on Android & iOS  
+- 🎨 **Modern UI Styling** — Clean and consistent design  
 
 ---
+
 
 ## 🛠️ Tech Stack
 
-- [Expo](https://expo.dev/)
-- [React Native](https://reactnative.dev/)
-- [React Navigation](https://reactnavigation.org/)
-- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/)
-- [twrnc (Tailwind for RN)](https://github.com/jaredh159/tailwind-react-native-classnames)
-- [Axios](https://axios-http.com/)
-- [Heroicons](https://github.com/tailwindlabs/heroicons)
+- Expo  
+- React Native  
+- React Navigation  
+- React Native Reanimated  
+- Twrnc (Tailwind CSS for React Native)  
+- @shopify/flash-list  
+- Axios  
+- Firebase  
+- AsyncStorage  
+- React Native YouTube Iframe  
+- React Native Heroicons  
 
 ---
 
-## 📸 Screenshots
+## 📦 Installation
 
-### 🏠 Home Screen
-![Home Screen](https://github.com/Saurabh7763/CookBook/blob/main/assets/HomeScreen.jpg)
-
-### 🍱  Login
-![Category List](https://github.com/Saurabh7763/CookBook/blob/main/assets/Login.jpg)
-
-### 📖 Recipe Details
-![Recipe Details](https://github.com/Saurabh7763/CookBook/blob/main/assets/Recipe.jpg)
-
+```bash
+git clone https://github.com/your-username/cookbook.git
+cd cookbook
+npm install
 
 ---
+
+▶️ Run the App
+npx expo start
+
+---
+
+📁 Project Structure
+├── assets
+├── components
+├── screens
+├── navigation
+├── services
+├── utils
+└── App.js
+
+---
+
+💡 Future Improvements
+
+Dark mode support
+AI integration to give instant racipe for available items.
+
+---
+
+🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+
 
